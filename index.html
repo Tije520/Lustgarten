@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fotojacht · Lustgarten</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&display=swap');
+  :root {
+    --zwart: #0b0f0e; --ivoor: #f2f5f0; --groen: #2d6a4f; --groen-donker: #1b4332;
+    --goud: #a07c10; --grijs: #5a6460; --lichtgrijs: #dde8e4; --wit: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--ivoor); color: var(--zwart); font-family: 'Source Serif 4', Georgia, serif; font-size: 15px; line-height: 1.75; min-height: 100vh; }
+  header { background: var(--groen-donker); color: var(--ivoor); padding: 40px 32px 32px; position: relative; overflow: hidden; }
+  header::before { content:''; position:absolute; inset:0; background:repeating-linear-gradient(60deg,transparent,transparent 12px,rgba(255,255,255,0.015) 12px,rgba(255,255,255,0.015) 13px); }
+  .header-inner { position:relative; z-index:1; max-width:800px; margin:0 auto; }
+  .badge { display:inline-block; background:var(--groen); color:white; font-size:10px; letter-spacing:3px; text-transform:uppercase; padding:3px 11px; margin-bottom:14px; }
+  header h1 { font-family:'Playfair Display',serif; font-size:clamp(1.9rem,5vw,3rem); font-weight:900; line-height:1.1; margin-bottom:8px; }
+  header h1 em { color:#a8d5b5; font-style:normal; }
+  .sub { color:#7aaa88; font-style:italic; font-size:0.9rem; margin-bottom:22px; }
+  .meta { display:flex; flex-wrap:wrap; gap:22px; border-top:1px solid #2a4a38; padding-top:16px; font-size:0.78rem; color:#6a9a78; }
+  .meta strong { color:#cce0d4; }
+  main { max-width:800px; margin:0 auto; padding:36px 20px 64px; }
+  .intro { background:var(--wit); border-left:4px solid var(--groen); padding:18px 22px; margin-bottom:36px; box-shadow:3px 3px 0 var(--lichtgrijs); font-size:0.92rem; }
+  .intro h2 { font-family:'Playfair Display',serif; font-size:1.1rem; margin-bottom:8px; }
+ 
+  /* PUZZLE */
+  .puzzle-section { background:var(--groen-donker); color:var(--ivoor); padding:26px 28px; margin-bottom:44px; }
+  .puzzle-label { font-size:0.72rem; letter-spacing:3px; text-transform:uppercase; color:#a8d5b5; margin-bottom:6px; }
+  .puzzle-title { font-family:'Playfair Display',serif; font-size:1rem; color:#cce0d4; font-weight:400; margin-bottom:18px; }
+  .slots-row { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px; }
+  .slot { width:46px; height:54px; border:2px dashed #2d5a44; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; transition:border-color 0.3s,background 0.3s; user-select:none; }
+  .slot.filled { border-color:var(--goud); border-style:solid; background:rgba(160,124,16,0.15); }
+  .slot.filled.pop { animation:pop 0.4s ease; }
+  @keyframes pop { 0%{transform:scale(0.6);opacity:0} 70%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+  .slot .slot-letter { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:700; color:var(--goud); }
+  .slot .slot-num { position:absolute; bottom:3px; font-size:0.5rem; color:#3a6a4a; }
+  .slot.filled .slot-num { color:#998020; }
+  .progress-bar-wrap { background:#0e2018; height:4px; margin:14px 0 0; }
+  .progress-bar-fill { background:var(--goud); height:4px; width:0%; transition:width 0.5s; }
+  .puzzle-feedback { font-size:0.82rem; color:#7aaa88; font-style:italic; min-height:20px; margin-top:8px; }
+  .puzzle-feedback.win { color:#66cc88; font-style:normal; font-weight:600; }
+ 
+  /* CARDS */
+  .section-head { font-family:'Playfair Display',serif; font-size:1.4rem; padding-bottom:8px; border-bottom:2px solid var(--zwart); margin-bottom:6px; position:relative; }
+  .section-head::after { content:''; position:absolute; bottom:-2px; left:0; width:50px; height:2px; background:var(--groen); }
+  .section-sub { color:var(--grijs); font-style:italic; font-size:0.87rem; margin-bottom:28px; }
+  .cards { display:flex; flex-direction:column; gap:22px; margin-top:32px; }
+  .card { background:var(--wit); border:1px solid var(--lichtgrijs); overflow:hidden; transition:box-shadow 0.2s; }
+  .card:hover { box-shadow:0 4px 18px rgba(0,0,0,0.07); }
+  .card-header { display:flex; align-items:stretch; border-bottom:1px solid var(--lichtgrijs); }
+  .card-num { width:54px; min-width:54px; background:var(--groen-donker); color:var(--ivoor); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px 0; font-family:'Playfair Display',serif; }
+  .card-num .n { font-size:1.6rem; font-weight:900; line-height:1; }
+  .card-num .l { font-size:0.6rem; color:#a8d5b5; letter-spacing:1px; text-transform:uppercase; margin-top:3px; }
+  .card-title-area { padding:12px 16px; flex:1; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .card-title-area h3 { font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; }
+  .tag { font-size:0.65rem; letter-spacing:1.5px; text-transform:uppercase; padding:2px 8px; border:1px solid; white-space:nowrap; }
+  .tag-lust { color:#1a5c30; border-color:#2d6a4f; background:#f0f7f4; }
+  .tag-context { color:#1a3a6b; border-color:#2c5282; background:#f0f4ff; }
+  .card-body { padding:16px 16px 14px 70px; }
+  .card-body p { font-size:0.9rem; color:#2a2a2a; margin-bottom:10px; }
+  .foto-box { background:#f4f8f6; border-left:3px solid var(--groen); padding:11px 15px; margin:10px 0; font-size:0.88rem; }
+  .foto-box strong { display:block; font-size:0.7rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--groen); margin-bottom:4px; }
+  .vraag-box { background:#f0f4ff; border-left:3px solid #3a5ba0; padding:11px 15px; margin:10px 0; font-size:0.88rem; }
+  .vraag-box strong { display:block; font-size:0.7rem; letter-spacing:1.5px; text-transform:uppercase; color:#3a5ba0; margin-bottom:4px; }
+  .antwoord-wrap { margin-top:10px; }
+  .antwoord-label { font-size:0.7rem; letter-spacing:1.5px; text-transform:uppercase; color:#3a5ba0; margin-bottom:5px; display:block; }
+  textarea.antwoord { width:100%; min-height:72px; border:1px solid #c8d4ee; background:#f8faff; padding:8px 10px; font-family:'Source Serif 4',serif; font-size:0.87rem; line-height:1.55; resize:vertical; color:var(--zwart); }
+  textarea.antwoord:focus { outline:none; border-color:#3a5ba0; background:#fff; }
+  .check-row { padding:10px 16px 16px 70px; display:flex; align-items:center; gap:10px; }
+  .btn-check { background:var(--groen-donker); color:var(--ivoor); border:none; padding:8px 18px; font-family:'Source Serif 4',serif; font-size:0.78rem; letter-spacing:1px; cursor:pointer; text-transform:uppercase; transition:background 0.2s; }
+  .btn-check:hover:not(:disabled) { background:var(--groen); }
+  .btn-check:disabled { opacity:0.5; cursor:not-allowed; }
+  .btn-check.done { background:#3a7a3a; }
+  .status { font-size:0.78rem; color:var(--grijs); font-style:italic; }
+  .status.ok { color:#3a7a3a; font-style:normal; font-weight:600; }
+ 
+  #done-banner { display:none; background:var(--groen-donker); color:white; padding:28px 32px; text-align:center; margin-top:44px; }
+  #done-banner h2 { font-family:'Playfair Display',serif; font-size:1.6rem; margin-bottom:6px; }
+  #done-banner p { font-size:0.9rem; opacity:0.85; }
+ 
+  .docent-bar { background:#0e1e16; color:var(--ivoor); padding:22px 28px; margin-top:52px; }
+  .docent-bar h3 { font-family:'Playfair Display',serif; color:#a8d5b5; font-size:1rem; margin-bottom:4px; }
+  .docent-bar p { font-size:0.82rem; color:#4a7a5a; margin-bottom:12px; }
+  .btn-docent { background:none; border:1px solid #4a8a66; color:#a8d5b5; padding:7px 16px; font-size:0.8rem; cursor:pointer; letter-spacing:1px; transition:all 0.2s; }
+  .btn-docent:hover { background:var(--groen); color:white; border-color:var(--groen); }
+  #docent-info { display:none; margin-top:18px; }
+  #docent-info.vis { display:block; }
+  .docent-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:8px; margin-top:10px; }
+  .docent-item { background:#0a150f; border:1px solid #1a3a26; padding:9px 13px; font-size:0.8rem; }
+  .docent-item .dn { color:#a8d5b5; font-weight:700; font-family:'Playfair Display',serif; margin-right:6px; }
+  footer { text-align:center; padding:24px 20px; border-top:1px solid var(--lichtgrijs); font-size:0.75rem; color:var(--grijs); font-style:italic; margin-top:44px; }
+
+  /* PIN MODAL */
+  .pin-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; align-items:center; justify-content:center; }
+  .pin-overlay.active { display:flex; }
+  .pin-box { background:#111; border:1px solid #3a3020; padding:36px 32px; text-align:center; max-width:320px; width:90%; }
+  .pin-box h4 { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--ivoor,#f5f0e8); margin-bottom:6px; }
+  .pin-box p { font-size:0.8rem; color:#777; margin-bottom:18px; }
+  .pin-dots { display:flex; justify-content:center; gap:10px; margin-bottom:20px; }
+  .pin-dot { width:14px; height:14px; border-radius:50%; border:2px solid #444; background:transparent; transition:background 0.2s; }
+  .pin-dot.filled { background:var(--goud,#a07c10); border-color:var(--goud,#a07c10); }
+  .pin-numpad { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:14px; }
+  .pin-key { background:#1a1814; border:1px solid #2a2622; color:var(--ivoor,#f5f0e8); font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; padding:14px 0; cursor:pointer; transition:background 0.15s; }
+  .pin-key:hover { background:#2a2622; }
+  .pin-key.del { font-size:0.9rem; font-family:'Source Serif 4',serif; }
+  .pin-error { color:#c04040; font-size:0.8rem; min-height:18px; margin-bottom:8px; }
+  .pin-cancel { background:none; border:none; color:#555; font-size:0.78rem; cursor:pointer; text-decoration:underline; font-family:'Source Serif 4',serif; }
+  .pin-cancel:hover { color:#999; }
+
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="badge">Fotojacht &middot; Deel 2 van 2</div>
+    <h1>Lustgarten<br><em>Fotojacht</em></h1>
+    <p class="sub">Nationalisme in Duitsland &mdash; Museumeiland, Berlijn</p>
+    <div class="meta">
+      <div><strong>Locatie:</strong> Lustgarten, Museumeiland</div>
+      <div><strong>Groepsgrootte:</strong> 3&ndash;4 leerlingen</div>
+      <div><strong>Eindwoord:</strong> samen met de Dom-groep</div>
+    </div>
+  </div>
+</header>
+<main>
+  <div class="intro">
+    <h2>Hoe werkt dit?</h2>
+    <p>Jullie groep maakt 6 fotoopdrachten bij de Lustgarten. Laat elke foto goedkeuren door de docent &mdash; dan verschijnt de bijbehorende letter automatisch op de juiste plek in het woordraster. Aan het einde zoeken jullie de Dom-groep op om het eindwoord te ontdekken.</p>
+  </div>
+ 
+  <div class="puzzle-section">
+    <div class="puzzle-label">Jouw 6 letters &mdash; Lustgarten</div>
+    <div class="puzzle-title">Letters verschijnen automatisch na goedkeuring</div>
+    <div class="slots-row" id="slots"></div>
+    <div class="puzzle-feedback" id="pfeedback">Verdien letters door opdrachten te voltooien.</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressbar"></div></div>
+  </div>
+ 
+  <div class="section-head">Opdrachten &mdash; Lustgarten</div>
+  <p class="section-sub">Van moestuin tot naziparadeplein &mdash; de Lustgarten weerspiegelt drie eeuwen politieke geschiedenis.</p>
+  <div class="cards">
+ 
+    <!-- OPDRACHT 1 — levert letter R op positie 11 -->
+    <div class="card" id="card-1">
+      <div class="card-header">
+        <div class="card-num"><span class="n">1</span><span class="l">Lust</span></div>
+        <div class="card-title-area"><h3>Het plein als massasc&egrave;ne</h3><span class="tag tag-lust">Politiek</span></div>
+      </div>
+      <div class="card-body">
+        <p>In de aanloop naar de verkiezingen van 1932 stond de Lustgarten vol met duizenden mensen voor een toespraak van Adolf Hitler. Het plein werd gebruikt als theatraal podium voor nationaalsocialistische propaganda &mdash; massa&rsquo;s mensen als bewijs van &ldquo;de wil van het volk&rdquo;.</p>
+        <div class="foto-box"><strong>&#128248; Fotoopdracht</strong>Ga midden op de Lustgarten staan en maak een panoramafoto waarbij zoveel mogelijk van het plein &eacute;n de Dom op de achtergrond zichtbaar zijn. Jullie groep staat verspreid over het plein.</div>
+        <div class="vraag-box"><strong>&#128172; Denkvraag</strong>Waarom kiezen politici voor grote, openbare pleinen om toespraken te houden? Wat doet een menigte met de boodschap van een spreker?
+          <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
+        </div>
+      </div>
+      <div class="check-row"><button class="btn-check" onclick="approve(1)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-1">Wacht op goedkeuring</span></div>
+    </div>
+ 
+    <!-- OPDRACHT 2 — levert letter L op positie 8 -->
+    <div class="card" id="card-2">
+      <div class="card-header">
+        <div class="card-num"><span class="n">2</span><span class="l">Lust</span></div>
+        <div class="card-title-area"><h3>De granietschaal</h3><span class="tag tag-lust">Monument</span></div>
+      </div>
+      <div class="card-body">
+        <p>In het midden van de Lustgarten staat een enorme granietschaal &mdash; een van de grootste geslepen granieten stukken ter wereld. Hij werd geplaatst als onderdeel van de herinrichting door Schinkel in de 19e eeuw en symboliseert Pruisische kracht en vakmanschap.</p>
+        <div class="foto-box"><strong>&#128248; Fotoopdracht</strong>Fotografeer de granietschaal van dichtbij &eacute;n van veraf, zodat de omvang van het object duidelijk is. Jullie groep staat eromheen.</div>
+        <div class="vraag-box"><strong>&#128172; Denkvraag</strong>Hoe gebruiken staten indrukwekkende kunstwerken of monumenten in de openbare ruimte om nationale identiteit te vormen? Noem een modern voorbeeld.
+          <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
+        </div>
+      </div>
+      <div class="check-row"><button class="btn-check" onclick="approve(2)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-2">Wacht op goedkeuring</span></div>
+    </div>
+ 
+    <!-- OPDRACHT 3 — levert letter N op positie 12 -->
+    <div class="card" id="card-3">
+      <div class="card-header">
+        <div class="card-num"><span class="n">3</span><span class="l">Lust</span></div>
+        <div class="card-title-area"><h3>Dom en Altes Museum als ensemble</h3><span class="tag tag-lust">Stadsplanning</span></div>
+      </div>
+      <div class="card-body">
+        <p>Het Altes Museum (ontworpen door Schinkel, 1830) grenst direct aan de Lustgarten. Samen met de Dom vormt het een geheel van nationale cultuur, godsdienst en macht. Nationalisme uitgedrukt in bewuste stadsplanning.</p>
+        <div class="foto-box"><strong>&#128248; Fotoopdracht</strong>Ga zo staan dat zowel de voorgevel van het Altes Museum als de Dom tegelijkertijd in beeld zijn. Maak een foto waarbij die as van macht duidelijk zichtbaar is.</div>
+        <div class="vraag-box"><strong>&#128172; Denkvraag</strong>Waarom bouwden 19e-eeuwse staten musea vlak naast kerken en paleizen? Wat zegt dat over hoe ze cultuur, godsdienst en nationale identiteit met elkaar verbonden?
+          <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
+        </div>
+      </div>
+      <div class="check-row"><button class="btn-check" onclick="approve(3)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-3">Wacht op goedkeuring</span></div>
+    </div>
+ 
+    <!-- OPDRACHT 4 — levert letter O op positie 7 -->
+    <div class="card" id="card-4">
+      <div class="card-header">
+        <div class="card-num"><span class="n">4</span><span class="l">Lust</span></div>
+        <div class="card-title-area"><h3>Van tuin tot paradeplein</h3><span class="tag tag-lust">Geschiedenis</span></div>
+      </div>
+      <div class="card-body">
+        <p>Onder het naziregime werd het park van zijn groen ontdaan en omgevormd tot een strak, kaal plein geschikt voor massabijeenkomsten en parades. Na 1945 werd het opnieuw ingericht als groen park. Een bewuste keuze om de nazi-periode achter zich te laten.</p>
+        <div class="foto-box"><strong>&#128248; Fotoopdracht</strong>Maak een foto van het huidige groene park. Zoek een bankje, boom of grasperk als centraal element. Maak ook een foto waarbij de Dom op de achtergrond staat.</div>
+        <div class="vraag-box"><strong>&#128172; Denkvraag</strong>Na 1945 koos (West-)Duitsland ervoor de Lustgarten opnieuw als park in te richten in plaats van als herdenkingsplek. Is dat een goede keuze? Wat zijn de argumenten v&oacute;&oacute;r en tegen?
+          <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
+        </div>
+      </div>
+      <div class="check-row"><button class="btn-check" onclick="approve(4)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-4">Wacht op goedkeuring</span></div>
+    </div>
+ 
+    <!-- OPDRACHT 5 — levert letter E op positie 10 -->
+    <div class="card" id="card-5">
+      <div class="card-header">
+        <div class="card-num"><span class="n">5</span><span class="l">Lust</span></div>
+        <div class="card-title-area"><h3>Fonteinen in de Lustgarten</h3><span class="tag tag-context">Ontwerper</span></div>
+      </div>
+      <div class="card-body">
+        <p>In 1997 kreeg Hans Loidl de opdracht om de Lustgarten opnieuw te ontwerpen naar aanleiding van de volledige herinrichting van de Lustgarten. Hij deed dit niet op een klassiek historische wijze maar ontwierp de tuin als een moderne interpretatie van de historische tuin. Dit zie je het beste bij de grote in de grond verwerkte fontein. Deze staat in het midden van de Lustgarten en het lijkt bijna alsof de stenen uit de grond steken.</p>
+        <div class="foto-box"><strong>&#128248; Fotoopdracht</strong>Maak een foto van de centrale fontein waarbij je vanaf dicht bij de gond de foto maakt om zo het relief van de fontein goed te fotograveren.</div>
+        <div class="vraag-box"><strong>&#128172; Denkvraag</strong>Er is door het bestuur dus expliciet gekozen voor een ontwerper die niet het historisch en nationalistische beeld gebruikte, maar eerder de lustgarten als ontmoetingsplek zag. Waarom denk je dat Hans Loidl er niet voor heeft gekozen om een imposante fontein met historische beelden in het midden van de Lustgarten te plaatsen? tip kijk wat er al om de lustgarten heen staat
+          <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
+        </div>
+      </div>
+      <div class="check-row"><button class="btn-check" onclick="approve(5)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-5">Wacht op goedkeuring</span></div>
+    </div>
+ 
+    <!-- OPDRACHT 6 — levert letter L op positie 9 -->
+    <div class="card" id="card-6">
+      <div class="card-header">
+        <div class="card-num"><span class="n">6</span><span class="l">Lust</span></div>
+        <div class="card-title-area"><h3>Jullie eigen blik</h3><span class="tag tag-context">Creatief</span></div>
+      </div>
+      <div class="card-body">
+        <p>De laatste opdracht is aan jullie. Jullie hebben nu beide locaties verkend en geleerd over nationalisme, architectuur en politiek gebruik van publieke ruimte. Nu mogen jullie zelf een foto maken die voor jullie iets zegt over het thema nationalisme.</p>
+        <div class="foto-box"><strong>&#128248; Fotoopdracht</strong>Kies zelf een plek op of nabij het Museumeiland en maak een foto die jullie verbinden met nationalisme. Dit kan symbolisch, letterlijk of juist heel persoonlijk zijn. Jullie moeten hem uitleggen aan de docent.</div>
+        <div class="vraag-box"><strong>&#128172; Denkvraag</strong>In twee zinnen: wat is jullie eigen definitie van nationalisme na deze fotojacht? En: is nationalisme altijd gevaarlijk, of kan het ook positief zijn?
+          <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
+        </div>
+      </div>
+      <div class="check-row"><button class="btn-check" onclick="approve(6)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-6">Wacht op goedkeuring</span></div>
+    </div>
+ 
+  </div>
+ 
+  <div id="done-banner">
+    <h2>Alle Lustgarten-opdrachten voltooid!</h2>
+    <p>Jullie hebben alle 6 letters verdiend! Zoek nu de Dom-groep op en open samen de <strong>Samenvoeg-app</strong> om het eindwoord te ontdekken.</p>
+  </div>
+ 
+  <div class="docent-bar">
+    <h3>Voor de docent</h3>
+    <p>Klik om de antwoordenkaart te tonen met letter-vraag koppeling.</p>
+    <button class="btn-docent" onclick="openPin()">&#9660; Toon antwoordenkaart</button>
+    <div id="docent-info">
+      <p style="color:#4a7a5a;font-size:0.8rem;margin-bottom:10px;">Lustgarten levert <strong style="color:#a8d5b5">OLLERN</strong> (posities 7&ndash;12 van HOHENZOLLERN). Letters zijn willekeurig over de vragen verdeeld.</p>
+      <div class="docent-grid">
+        <div class="docent-item"><span class="dn">Vraag 1</span>Massasc&egrave;ne &rarr; letter <strong style="color:#a8d5b5">R</strong> (pos 11)</div>
+        <div class="docent-item"><span class="dn">Vraag 2</span>Granietschaal &rarr; letter <strong style="color:#a8d5b5">L</strong> (pos 8)</div>
+        <div class="docent-item"><span class="dn">Vraag 3</span>Dom + Museum &rarr; letter <strong style="color:#a8d5b5">N</strong> (pos 12)</div>
+        <div class="docent-item"><span class="dn">Vraag 4</span>Tuin-paradeplein &rarr; letter <strong style="color:#a8d5b5">O</strong> (pos 7)</div>
+        <div class="docent-item"><span class="dn">Vraag 5</span>Infoborden &rarr; letter <strong style="color:#a8d5b5">E</strong> (pos 10)</div>
+        <div class="docent-item"><span class="dn">Vraag 6</span>Eigen blik &rarr; letter <strong style="color:#a8d5b5">L</strong> (pos 9)</div>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>Fotojacht Berlijn &middot; Deel 2: Lustgarten &middot; Thema: Nationalisme in Duitsland</footer>
+<script>
+// HOHENZOLLERN — Lustgarten gets O,L,L,E,R,N (positions 7-12, 0-indexed: 6-11)
+// Assigned per question (willekeurig):
+// Q1->R(pos11,slotIdx4), Q2->L(pos8,slotIdx1), Q3->N(pos12,slotIdx5), Q4->O(pos7,slotIdx0), Q5->E(pos10,slotIdx3), Q6->L(pos9,slotIdx2)
+const ASSIGN = [
+  { q:1, letter:'R', slotIdx:4 },  // pos 11
+  { q:2, letter:'L', slotIdx:1 },  // pos 8
+  { q:3, letter:'N', slotIdx:5 },  // pos 12
+  { q:4, letter:'O', slotIdx:0 },  // pos 7
+  { q:5, letter:'E', slotIdx:3 },  // pos 10
+  { q:6, letter:'L', slotIdx:2 },  // pos 9
+];
+// slotIdx is 0-5 within this group, corresponding to positions 7-12
+ 
+let approved = {};
+ 
+function buildSlots() {
+  const row = document.getElementById('slots');
+  row.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const el = document.createElement('div');
+    el.className = 'slot'; el.id = 'slot-'+i;
+    const num = document.createElement('span'); num.className = 'slot-num'; num.textContent = 'pos '+(i+7);
+    el.appendChild(num);
+    row.appendChild(el);
+  }
+}
+ 
+function approve(q) {
+  if (approved[q]) return;
+  approved[q] = true;
+  const btn = document.querySelector('#card-'+q+' .btn-check');
+  const st = document.getElementById('st-'+q);
+  btn.classList.add('done'); btn.disabled = true;
+  const a = ASSIGN.find(x => x.q === q);
+  btn.textContent = 'Letter ' + a.letter + ' verdiend!';
+  st.textContent = 'Letter ' + a.letter + ' staat nu op positie ' + (a.slotIdx+7);
+  st.className = 'status ok';
+ 
+  const slot = document.getElementById('slot-'+a.slotIdx);
+  slot.innerHTML = '<span class="slot-letter">'+a.letter+'</span><span class="slot-num">pos '+(a.slotIdx+7)+'</span>';
+  slot.classList.add('filled','pop');
+ 
+  updateProgress();
+}
+ 
+function updateProgress() {
+  const count = Object.keys(approved).length;
+  document.getElementById('progressbar').style.width = (count/6*100)+'%';
+  const fb = document.getElementById('pfeedback');
+  if (count === 6) {
+    fb.textContent = '&#10003; Alle 6 letters verdiend! Zoek nu de Dom-groep op.';
+    fb.className = 'puzzle-feedback win';
+    document.getElementById('done-banner').style.display = 'block';
+    document.getElementById('done-banner').scrollIntoView({ behavior:'smooth' });
+  } else {
+    fb.textContent = count+' van 6 letters verdiend.';
+    fb.className = 'puzzle-feedback';
+  }
+}
+ 
+
+// PIN CODE
+const PIN_CODE = '0113';
+let pinBuffer = '';
+
+function openPin() {
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-overlay').classList.add('active');
+}
+
+function pinKey(d) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += d;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(() => {
+      if (pinBuffer === PIN_CODE) {
+        document.getElementById('pin-overlay').classList.remove('active');
+        const el = document.getElementById('docent-info');
+        const btn = document.querySelector('.btn-docent');
+        el.classList.add('vis');
+        btn.textContent = '\u25B2 Verberg';
+        btn.onclick = closeDocent;
+      } else {
+        document.getElementById('pin-error').textContent = 'Onjuiste code, probeer opnieuw.';
+        pinBuffer = '';
+        updatePinDots();
+      }
+    }, 200);
+  }
+}
+
+function pinDel() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+}
+
+function pinCancel() {
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pin-overlay').classList.remove('active');
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById('pd'+i).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function closeDocent() {
+  const el = document.getElementById('docent-info');
+  const btn = document.querySelector('.btn-docent');
+  el.classList.remove('vis');
+  btn.textContent = '\u25BC Toon antwoordenkaart';
+  btn.onclick = openPin;
+}
+
+function toggleDocent() { openPin(); }
+
+ 
+buildSlots();
+</script>
+
+<!-- PIN MODAL -->
+<div class="pin-overlay" id="pin-overlay">
+  <div class="pin-box">
+    <h4>Docentenpaneel</h4>
+    <p>Voer de 4-cijferige code in</p>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-numpad">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key del" onclick="pinDel()">&larr;</button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinCancel()">&#x2715;</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <button class="pin-cancel" onclick="pinCancel()">Annuleren</button>
+  </div>
+</div>
+
+</body>
+</html>
+ 
