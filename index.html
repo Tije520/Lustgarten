@@ -297,16 +297,17 @@ function approve(q) {
   approved[q] = true;
   const btn = document.querySelector('#card-'+q+' .btn-check');
   const st = document.getElementById('st-'+q);
-  btn.classList.add('done'); btn.disabled = true;
   const a = ASSIGN.find(x => x.q === q);
-  btn.textContent = 'Letter ' + a.letter + ' verdiend!';
-  st.textContent = 'Letter ' + a.letter + ' staat nu op positie ' + (a.slotIdx+7);
-  st.className = 'status ok';
- 
-  // Fill slot
+  if (!a) return;
+
+  if (btn) { btn.classList.add('done'); btn.disabled = true; btn.textContent = 'Letter ' + a.letter + ' verdiend!'; }
+  if (st) { st.textContent = 'Letter ' + a.letter + ' staat nu op positie ' + (a.slotIdx+7); st.className = 'status ok'; }
+
   const slot = document.getElementById('slot-'+a.slotIdx);
-  slot.innerHTML = '<span class="slot-letter">'+a.letter+'</span><span class="slot-num">pos '+(a.slotIdx+1)+'</span>';
-  slot.classList.add('filled','pop');
+  if (slot) {
+    slot.innerHTML = '<span class="slot-letter">'+a.letter+'</span><span class="slot-num">pos '+(a.slotIdx+7)+'</span>';
+    slot.classList.add('filled','pop');
+  }
   
   updateProgress();
 }
