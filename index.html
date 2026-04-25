@@ -155,7 +155,7 @@
           <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
         </div>
       </div>
-      <div class="check-row"><button class="btn-check" onclick="approve(1)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-1">Wacht op goedkeuring</span></div>
+      <div class="check-row"><button class="btn-check" onclick="approvePin(1)">Goedgekeurd door docent</button><span class="status" id="st-1">Wacht op goedkeuring</span></div>
     </div>
  
     <!-- OPDRACHT 2 — levert letter L op positie 8 -->
@@ -171,7 +171,7 @@
           <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
         </div>
       </div>
-      <div class="check-row"><button class="btn-check" onclick="approve(2)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-2">Wacht op goedkeuring</span></div>
+      <div class="check-row"><button class="btn-check" onclick="approvePin(2)">Goedgekeurd door docent</button><span class="status" id="st-2">Wacht op goedkeuring</span></div>
     </div>
  
     <!-- OPDRACHT 3 — levert letter N op positie 12 -->
@@ -187,7 +187,7 @@
           <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
         </div>
       </div>
-      <div class="check-row"><button class="btn-check" onclick="approve(3)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-3">Wacht op goedkeuring</span></div>
+      <div class="check-row"><button class="btn-check" onclick="approvePin(3)">Goedgekeurd door docent</button><span class="status" id="st-3">Wacht op goedkeuring</span></div>
     </div>
  
     <!-- OPDRACHT 4 — levert letter O op positie 7 -->
@@ -203,7 +203,7 @@
           <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
         </div>
       </div>
-      <div class="check-row"><button class="btn-check" onclick="approve(4)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-4">Wacht op goedkeuring</span></div>
+      <div class="check-row"><button class="btn-check" onclick="approvePin(5)">Goedgekeurd door docent</button><span class="status" id="st-5">Wacht op goedkeuring</span></div>
     </div>
  
     <!-- OPDRACHT 5 — levert letter E op positie 10 -->
@@ -235,14 +235,14 @@
           <div class="antwoord-wrap"><span class="antwoord-label">Jouw antwoord</span><textarea class="antwoord" placeholder="Schrijf hier jullie antwoord..."></textarea></div>
         </div>
       </div>
-      <div class="check-row"><button class="btn-check" onclick="approve(6)">&#10003; Goedgekeurd door docent</button><span class="status" id="st-6">Wacht op goedkeuring</span></div>
+      <div class="check-row"><button class="btn-check" onclick="approvePin(6)">Goedgekeurd door docent</button><span class="status" id="st-6">Wacht op goedkeuring</span></div>
     </div>
  
   </div>
  
   <div id="done-banner">
     <h2>Alle Lustgarten-opdrachten voltooid!</h2>
-    <p>Jullie hebben alle 6 letters verdiend! Zoek nu de Dom-groep op en open samen de <strong>Samenvoeg-app</strong> om het eindwoord te ontdekken.</p>
+    <p>Jullie hebben alle 6 letters verdiend! Zoek nu de Dom-groep op om het eindwoord te ontdekken.</p>
   </div>
  
   <div class="docent-bar">
@@ -278,6 +278,7 @@ const ASSIGN = [
 // slotIdx is 0-5 within this group, corresponding to positions 7-12
  
 let approved = {};
+let pendingApproval = null;
  
 function buildSlots() {
   const row = document.getElementById('slots');
@@ -302,10 +303,11 @@ function approve(q) {
   st.textContent = 'Letter ' + a.letter + ' staat nu op positie ' + (a.slotIdx+7);
   st.className = 'status ok';
  
+  // Fill slot
   const slot = document.getElementById('slot-'+a.slotIdx);
-  slot.innerHTML = '<span class="slot-letter">'+a.letter+'</span><span class="slot-num">pos '+(a.slotIdx+7)+'</span>';
+  slot.innerHTML = '<span class="slot-letter">'+a.letter+'</span><span class="slot-num">pos '+(a.slotIdx+1)+'</span>';
   slot.classList.add('filled','pop');
- 
+  
   updateProgress();
 }
  
@@ -344,11 +346,16 @@ function pinKey(d) {
     setTimeout(() => {
       if (pinBuffer === PIN_CODE) {
         document.getElementById('pin-overlay').classList.remove('active');
-        const el = document.getElementById('docent-info');
-        const btn = document.querySelector('.btn-docent');
-        el.classList.add('vis');
-        btn.textContent = '\u25B2 Verberg';
-        btn.onclick = closeDocent;
+        if (pendingApproval !== null) {
+          approve(pendingApproval);
+          pendingApproval = null;
+        } else {
+          const el = document.getElementById('docent-info');
+          const btn = document.querySelector('.btn-docent');
+          el.classList.add('vis');
+          btn.textContent = '\u25B2 Verberg';
+          btn.onclick = closeDocent;
+        }
       } else {
         document.getElementById('pin-error').textContent = 'Onjuiste code, probeer opnieuw.';
         pinBuffer = '';
@@ -387,6 +394,14 @@ function toggleDocent() { openPin(); }
 
  
 buildSlots();
+
+function approvePin(q) {
+  pendingApproval = q;
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-overlay').classList.add('active');
+}
 </script>
 
 <!-- PIN MODAL -->
