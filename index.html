@@ -363,6 +363,7 @@ let pinBuffer = '';
 let pendingApproval = null;
 
 function approvePin(q) {
+  stuurAntwoord(q);
   pendingApproval = q;
   pinBuffer = '';
   updatePinDots();
@@ -387,7 +388,6 @@ function pinKey(d) {
       if (pinBuffer === PIN_CODE) {
         document.getElementById('pin-overlay').classList.remove('active');
         if (pendingApproval !== null) {
-          stuurAntwoord(pendingApproval);
           approve(pendingApproval);
           pendingApproval = null;
         } else {
