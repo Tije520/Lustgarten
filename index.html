@@ -272,12 +272,12 @@
 // Assigned per question (willekeurig):
 // Q1->R(pos11,slotIdx4), Q2->L(pos8,slotIdx1), Q3->N(pos12,slotIdx5), Q4->O(pos7,slotIdx0), Q5->E(pos10,slotIdx3), Q6->L(pos9,slotIdx2)
 const ASSIGN = [
-  { q:1, letter:'R', slotIdx:4 },  // pos 11
-  { q:2, letter:'L', slotIdx:1 },  // pos 8
-  { q:3, letter:'N', slotIdx:5 },  // pos 12
-  { q:4, letter:'O', slotIdx:0 },  // pos 7
-  { q:5, letter:'E', slotIdx:3 },  // pos 10
-  { q:6, letter:'L', slotIdx:2 },  // pos 9
+  { q:1, letter:'R', slotIdx:4, code:'1873' },
+  { q:2, letter:'L', slotIdx:1, code:'4359' },
+  { q:3, letter:'N', slotIdx:5, code:'3903' },
+  { q:4, letter:'O', slotIdx:0, code:'4345' },
+  { q:5, letter:'E', slotIdx:3, code:'6655' },
+  { q:6, letter:'L', slotIdx:2, code:'8766' },
 ];
 // slotIdx is 0-5 within this group, corresponding to positions 7-12
  
@@ -385,19 +385,21 @@ function pinKey(d) {
   updatePinDots();
   if (pinBuffer.length === 4) {
     setTimeout(() => {
-      if (pinBuffer === PIN_CODE) {
-        document.getElementById('pin-overlay').classList.remove('active');
-        if (pendingApproval !== null) {
-          approve(pendingApproval);
-          pendingApproval = null;
-        } else {
-          const el = document.getElementById('docent-info');
-          const btn = document.querySelector('.btn-docent');
-          el.classList.add('vis');
-          btn.textContent = '\u25B2 Verberg';
-          btn.onclick = closeDocent;
-        }
-      } else {
+const a = pendingApproval !== null ? ASSIGN.find(x => x.q === pendingApproval) : null;
+const verwacht = a ? a.code : PIN_CODE;
+if (pinBuffer === verwacht) {
+  document.getElementById('pin-overlay').classList.remove('active');
+  if (pendingApproval !== null) {
+    approve(pendingApproval);
+    pendingApproval = null;
+  } else {
+    const el = document.getElementById('docent-info');
+    const btn = document.querySelector('.btn-docent');
+    el.classList.add('vis');
+    btn.textContent = '\u25B2 Verberg';
+    btn.onclick = closeDocent;
+  }
+} else {
         document.getElementById('pin-error').textContent = 'Onjuiste code, probeer opnieuw.';
         pinBuffer = '';
         updatePinDots();
@@ -405,7 +407,6 @@ function pinKey(d) {
     }, 200);
   }
 }
-
 function pinDel() { pinBuffer = pinBuffer.slice(0,-1); updatePinDots(); }
 function pinCancel() { pinBuffer=''; updatePinDots(); document.getElementById('pin-overlay').classList.remove('active'); }
 function updatePinDots() { for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('filled', i < pinBuffer.length); }
